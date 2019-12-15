@@ -28,12 +28,7 @@ namespace SettingsManager
             {
                 Directory.CreateDirectory(AppFolderPath);
 
-                var data = new SettingsModel
-                {
-                    SomeSetting = "data"
-                };
-
-                CreateSettingsFile(data);
+                CreateSettingsFile(new SettingsModel());
             }
 
             GetSettingsFromFile();

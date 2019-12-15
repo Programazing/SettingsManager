@@ -2,6 +2,6 @@
 {
     public class SettingsModel
     {
-        public string SomeSetting { get; set; }
+        public string SomeSetting { get; set; } = "data";
     }
 }
