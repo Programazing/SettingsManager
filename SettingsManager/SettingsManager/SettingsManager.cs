@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SettingsManager.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +30,7 @@ namespace SettingsManager
 
                 var data = new SettingsModel
                 {
-                    SomeSetting = ""
+                    SomeSetting = "data"
                 };
 
                 CreateSettingsFile(data);
