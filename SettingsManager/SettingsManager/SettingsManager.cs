@@ -10,7 +10,7 @@ namespace SettingsManager
     {
         private static string AppFolderPath;
         private static string JsonFilePath;
-        private static SettingsModel Settings;
+        public static SettingsModel Settings;
 
         static SettingsManager()
         {
@@ -35,7 +35,7 @@ namespace SettingsManager
                 CreateSettingsFile(data);
             }
 
-            GetSettings();
+            GetSettingsFromFile();
         }
 
         private static void CreateSettingsFile(SettingsModel data)
@@ -45,19 +45,14 @@ namespace SettingsManager
             serializer.Serialize(file, data);
         }
 
-        private static void GetSettings()
+        private static void GetSettingsFromFile()
         {
             Settings = JsonConvert.DeserializeObject<SettingsModel>(File.ReadAllText(JsonFilePath));
         }
 
-        public static string GetSomeSetting()
+        public static void SetSettings(SettingsModel input)
         {
-            return Settings.SomeSetting;
-        }
-
-        public static void SetSomeSetting(string input)
-        {
-            Settings.SomeSetting = input;
+            Settings = input;
 
             CreateSettingsFile(Settings);
         }

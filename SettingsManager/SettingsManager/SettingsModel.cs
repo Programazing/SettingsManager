@@ -1,6 +1,6 @@
 ﻿namespace SettingsManager
 {
-    internal class SettingsModel
+    public class SettingsModel
     {
         public string SomeSetting { get; set; }
     }
