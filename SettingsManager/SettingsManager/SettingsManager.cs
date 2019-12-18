@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
-using SettingsManager.Models;
+﻿using SettingsManager.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 
 namespace SettingsManager
 {
@@ -36,14 +36,14 @@ namespace SettingsManager
 
         private static void CreateSettingsFile(SettingsModel data)
         {
-            using StreamWriter file = File.CreateText(JsonFilePath);
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Serialize(file, data);
+            var jsonString = JsonSerializer.Serialize(data, SerializeOptions());
+            File.WriteAllText(JsonFilePath, jsonString);
         }
 
         private static void GetSettingsFromFile()
         {
-            Settings = JsonConvert.DeserializeObject<SettingsModel>(File.ReadAllText(JsonFilePath));
+            var jsonString = File.ReadAllText(JsonFilePath);
+            Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString);
         }
 
         public static void SetSettings(SettingsModel input)
@@ -51,6 +51,14 @@ namespace SettingsManager
             Settings = input;
 
             CreateSettingsFile(Settings);
+        }
+
+        private static JsonSerializerOptions SerializeOptions()
+        {
+            return new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
         }
     }
 }
