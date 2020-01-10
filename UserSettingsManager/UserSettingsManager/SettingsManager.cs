@@ -1,27 +1,29 @@
-﻿using SettingsManager.Models;
+﻿using UserSettingsManager.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 
-namespace SettingsManager
+namespace UserSettingsManager
 {
-    public static class SettingsManager
+    public class SettingsManager
     {
-        private static string AppFolderPath;
-        private static string JsonFilePath;
-        public static SettingsModel Settings;
+        private string AppFolderPath;
+        private string JsonFilePath;
+        public SettingsModel Settings;
+        private string ProjectName;
 
-        static SettingsManager()
+        public SettingsManager(string projectName)
         {
+            ProjectName = string.IsNullOrEmpty(projectName) ? "DefaultProjectName" : projectName;
             Instance();
         }
 
-        private static void Instance()
+        private void Instance()
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            AppFolderPath = $"{appData}/YourProjectName";
+            AppFolderPath = $"{appData}/{ProjectName}";
             JsonFilePath = $"{AppFolderPath}/settings.json";
 
             if (!Directory.Exists(AppFolderPath))
@@ -34,26 +36,26 @@ namespace SettingsManager
             GetSettingsFromFile();
         }
 
-        private static void CreateSettingsFile(SettingsModel data)
+        private void CreateSettingsFile(SettingsModel data)
         {
             var jsonString = JsonSerializer.Serialize(data, SerializeOptions());
             File.WriteAllText(JsonFilePath, jsonString);
         }
 
-        private static void GetSettingsFromFile()
+        private void GetSettingsFromFile()
         {
             var jsonString = File.ReadAllText(JsonFilePath);
             Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString);
         }
 
-        public static void SetSettings(SettingsModel input)
+        public void SetSettings(SettingsModel input)
         {
             Settings = input;
 
             CreateSettingsFile(Settings);
         }
 
-        private static JsonSerializerOptions SerializeOptions()
+        private JsonSerializerOptions SerializeOptions()
         {
             return new JsonSerializerOptions
             {
