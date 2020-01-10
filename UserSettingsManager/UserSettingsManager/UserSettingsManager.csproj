@@ -5,6 +5,7 @@
     <Authors>Christopher C. Johnson (Programazing)</Authors>
     <Description>A statically typed User Settings Manager</Description>
     <Copyright>Christopher C. Johnson 2020</Copyright>
+    <PackageProjectUrl>https://github.com/Programazing/UserSettingsManager</PackageProjectUrl>
   </PropertyGroup>
 
 </Project>
