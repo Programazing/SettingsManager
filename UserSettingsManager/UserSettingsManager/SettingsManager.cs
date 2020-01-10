@@ -11,7 +11,7 @@ namespace UserSettingsManager
     {
         private string AppFolderPath;
         private string JsonFilePath;
-        public SettingsModel Settings;
+        public Settings Settings;
         private string ProjectName;
 
         public SettingsManager(string projectName)
@@ -30,13 +30,13 @@ namespace UserSettingsManager
             {
                 Directory.CreateDirectory(AppFolderPath);
 
-                CreateSettingsFile(new SettingsModel());
+                CreateSettingsFile(new Settings());
             }
 
             GetSettingsFromFile();
         }
 
-        private void CreateSettingsFile(SettingsModel data)
+        private void CreateSettingsFile(Settings data)
         {
             var jsonString = JsonSerializer.Serialize(data, SerializeOptions());
             File.WriteAllText(JsonFilePath, jsonString);
@@ -45,10 +45,10 @@ namespace UserSettingsManager
         private void GetSettingsFromFile()
         {
             var jsonString = File.ReadAllText(JsonFilePath);
-            Settings = JsonSerializer.Deserialize<SettingsModel>(jsonString);
+            Settings = JsonSerializer.Deserialize<Settings>(jsonString);
         }
 
-        public void SetSettings(SettingsModel input)
+        public void SetSettings(Settings input)
         {
             Settings = input;
 
