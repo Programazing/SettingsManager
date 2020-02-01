@@ -2,8 +2,7 @@
 {
     public class Settings
     {
-        public string SomeSetting { get; set; } = "data";
-        public string AnotherSetting { get; set; } = "more data";
-        public int NumberSetting { get; set; } = 42;
+        public User User { get; set; }
+        public SettingsModel UserSettings { get; set; }
     }
 }

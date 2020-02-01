@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
 
 namespace UserSettingsManager
 {
@@ -11,32 +12,49 @@ namespace UserSettingsManager
     {
         private string AppFolderPath;
         private string JsonFilePath;
-        public Settings Settings;
+        public List<Settings> Settings;
+        private List<User> Users;
         private string ProjectName;
+        private string UserName;
 
-        public SettingsManager(string projectName)
+        public SettingsManager(string projectName, string userName)
         {
-            ProjectName = string.IsNullOrEmpty(projectName) ? "DefaultProjectName" : projectName;
-            Instance();
+            SetFields(projectName, userName);
+            SetPaths();
+            CreateDirectory();
+            GetSettingsFromFile();
         }
 
-        private void Instance()
+        private void SetFields(string projectName, string userName)
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            AppFolderPath = $"{appData}/{ProjectName}";
-            JsonFilePath = $"{AppFolderPath}/settings.json";
+            ProjectName = string.IsNullOrEmpty(projectName) ? "DefaultProjectName" : projectName;
+            UserName = string.IsNullOrEmpty(userName) ? "DefaultUser" : userName;
+            Users = new List<User>() { new User { UserName = UserName } };
+        }
 
+        private void SetPaths()
+        {
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            AppFolderPath = $"{appDataPath}/{ProjectName}";
+            JsonFilePath = $"{AppFolderPath}/settings.json";
+        }
+
+        private void CreateDirectory()
+        {
             if (!Directory.Exists(AppFolderPath))
             {
                 Directory.CreateDirectory(AppFolderPath);
 
-                CreateSettingsFile(new Settings());
-            }
+                var users = new List<Settings>
+                {
+                    new Settings() { User = Users.FirstOrDefault(), UserSettings = new SettingsModel() }
+                };
 
-            GetSettingsFromFile();
+                CreateSettingsFile(users);
+            }
         }
 
-        private void CreateSettingsFile(Settings data)
+        private void CreateSettingsFile(List<Settings> data)
         {
             var jsonString = JsonSerializer.Serialize(data, SerializeOptions());
             File.WriteAllText(JsonFilePath, jsonString);
@@ -45,10 +63,10 @@ namespace UserSettingsManager
         private void GetSettingsFromFile()
         {
             var jsonString = File.ReadAllText(JsonFilePath);
-            Settings = JsonSerializer.Deserialize<Settings>(jsonString);
+            Settings = JsonSerializer.Deserialize<List<Settings>>(jsonString);
         }
 
-        public void SetSettings(Settings input)
+        public void SetSettings(List<Settings> input)
         {
             Settings = input;
 
