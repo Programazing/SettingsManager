@@ -5,21 +5,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UserSettingsManager.Models;
 
 namespace UserSettingsManagerTests
 {
     [TestFixture]
     public class FileTests
     {
-        string AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
         [Test]
         public void SettingsManager_CreatesDefaultSettingsFiles_WhenCalled_WithABlankString()
         {
-            var settings = new UserSettingsManager.SettingsManager("");
-            var path = $"{AppData}/DefaultProjectName/settings.json";
+            _ = new UserSettingsManager.SettingsManager("", "");
 
-            var sut = File.Exists(path);
+            var sut = File.Exists(SharedData.GetPath("DefaultProjectName"));
 
             sut.Should().BeTrue();
         }
@@ -28,8 +27,8 @@ namespace UserSettingsManagerTests
         public void SettingsManager_Creates_CorrectlyNamedSettingsFiles_WhenCalled_WithString()
         {
             var folderName = "My Project";
-            var settings = new UserSettingsManager.SettingsManager(folderName);
-            var path = $"{AppData}/{folderName}/settings.json";
+            _ = new UserSettingsManager.SettingsManager(folderName, "");
+            var path = SharedData.GetPath(folderName);
 
             var sut = File.Exists(path);
 
