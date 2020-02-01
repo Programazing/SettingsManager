@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using UserSettingsManager.Models;
+using UserSettingsManager;
 
 namespace UserSettingsManagerTests
 {

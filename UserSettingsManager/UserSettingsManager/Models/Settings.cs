@@ -1,4 +1,4 @@
-﻿namespace UserSettingsManager.Models
+﻿namespace UserSettingsManager
 {
     public class Settings
     {

@@ -6,6 +6,7 @@
     <Description>A statically typed User Settings Manager</Description>
     <Copyright>Christopher C. Johnson 2020</Copyright>
     <PackageProjectUrl>https://github.com/Programazing/UserSettingsManager</PackageProjectUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
 </Project>
