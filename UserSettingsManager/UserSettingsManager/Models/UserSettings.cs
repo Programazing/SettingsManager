@@ -1,6 +1,6 @@
 ﻿namespace UserSettingsManager.Models
 {
-    public class SettingsModel
+    public class UserSettings
     {
         public string SomeSetting { get; set; } = "data";
         public string AnotherSetting { get; set; } = "more data";

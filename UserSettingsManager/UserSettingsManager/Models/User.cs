@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UserSettingsManager.Models;
-
-namespace UserSettingsManager.Models
+﻿namespace UserSettingsManager.Models
 {
     public class User
     {

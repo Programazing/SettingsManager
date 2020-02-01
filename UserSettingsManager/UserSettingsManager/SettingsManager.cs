@@ -10,75 +10,92 @@ namespace UserSettingsManager
 {
     public class SettingsManager
     {
-        private string AppFolderPath;
-        private string JsonFilePath;
-        public List<Settings> Settings;
-        private List<User> Users;
-        private string ProjectName;
-        private string UserName;
+        public ICollection<Settings> Settings;
+        private User User;
 
         public SettingsManager(string projectName, string userName)
         {
             SetFields(projectName, userName);
-            SetPaths();
-            CreateDirectory();
-            GetSettingsFromFile();
+            FileManager.SetPaths(projectName);
+            FileManager.CreateDirectory();
+            AddSettings();
+            UpdateSettingsFromFile();
+        }
+
+        private void UpdateSettingsFromFile()
+        {
+            Settings = FileManager.GetSettingsFromFile();
         }
 
         private void SetFields(string projectName, string userName)
         {
-            ProjectName = string.IsNullOrEmpty(projectName) ? "DefaultProjectName" : projectName;
-            UserName = string.IsNullOrEmpty(userName) ? "DefaultUser" : userName;
-            Users = new List<User>() { new User { UserName = UserName } };
+            userName = string.IsNullOrEmpty(userName) ? "DefaultUser" : userName;
+            User = new User { UserName = userName };
         }
 
-        private void SetPaths()
+        public void AddUser(User user)
         {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            AppFolderPath = $"{appDataPath}/{ProjectName}";
-            JsonFilePath = $"{AppFolderPath}/settings.json";
-        }
-
-        private void CreateDirectory()
-        {
-            if (!Directory.Exists(AppFolderPath))
+            if(!UserExists(user.UserName))
             {
-                Directory.CreateDirectory(AppFolderPath);
+                var settings = SettingsBuilder(user, new UserSettings());
 
-                var users = new List<Settings>
-                {
-                    new Settings() { User = Users.FirstOrDefault(), UserSettings = new SettingsModel() }
-                };
+                FileManager.UpdateSettings(settings);
 
-                CreateSettingsFile(users);
+                UpdateSettingsFromFile();
             }
         }
 
-        private void CreateSettingsFile(List<Settings> data)
+        public void AddUsers(List<User> list)
         {
-            var jsonString = JsonSerializer.Serialize(data, SerializeOptions());
-            File.WriteAllText(JsonFilePath, jsonString);
+            foreach (var user in list)
+            {
+                AddUser(user);
+            }
         }
 
-        private void GetSettingsFromFile()
+        public void RemoveUser(string userName)
         {
-            var jsonString = File.ReadAllText(JsonFilePath);
-            Settings = JsonSerializer.Deserialize<List<Settings>>(jsonString);
+            var user = Settings.Where(x => x.User.UserName == userName).FirstOrDefault();
+            Settings.Remove(user);
+
+            FileManager.RemoveSettings(Settings);
+
+            UpdateSettingsFromFile();
         }
 
-        public void SetSettings(List<Settings> input)
+        private bool UserExists(string userName)
+        {
+            return Settings.Any(x => x.User.UserName == userName);
+        }
+
+        
+        private ICollection<Settings> SettingsBuilder(User user, UserSettings userSettings)
+        {
+            return new List<Settings>
+            {
+                new Settings() { User =user, UserSettings = userSettings }
+            };
+        }
+
+        public void RemoveUsers(List<string> list)
+        {
+            foreach (var user in list)
+            {
+                RemoveUser(user);
+            }
+        }
+
+        private void AddSettings()
+        {
+            var settings = SettingsBuilder(User, new UserSettings());
+            FileManager.CreateSettingsFile(settings);
+        }
+
+        public void SetSettings(ICollection<Settings> input)
         {
             Settings = input;
 
-            CreateSettingsFile(Settings);
-        }
-
-        private JsonSerializerOptions SerializeOptions()
-        {
-            return new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
+            FileManager.CreateSettingsFile(Settings);
         }
     }
 }
