@@ -9,18 +9,14 @@ namespace UserSettingsManagerTests
     {
         internal static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-        internal static string GetPath(string folderName)
-        {
-            return $"{AppData}/{folderName}/settings.json";
-        }
+        internal static string GetPath(string folderName) => $"{AppData}/{folderName}/settings.json";
 
-        internal static List<User> Users()
+        internal static string GetDefaultPath() => GetPath("DefaultProjectName");
+
+        internal static List<User> Users => new List<User>()
         {
-            return new List<User>()
-            {
-                new User { UserName = "Programazing", FirstName = "Christopher", LastName = "Johnson" },
-                new User { UserName = "Rando1", FirstName = "John", LastName = "Smith" }
+            new User { UserName = "Programazing", FirstName = "Christopher", LastName = "Johnson" },
+            new User { UserName = "Rando1", FirstName = "John", LastName = "Smith" }
         };
-        }
     }
 }

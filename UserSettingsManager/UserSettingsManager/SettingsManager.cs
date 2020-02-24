@@ -10,27 +10,57 @@ namespace UserSettingsManager
     public class SettingsManager
     {
         public ICollection<Settings> Settings;
+        private readonly FileManager FileManager;
         private User User;
 
         public SettingsManager(string projectName, string userName)
         {
-            SetFields(projectName, userName);
-            FileManager.SetPaths(projectName);
-            FileManager.CreateDirectory();
-            AddSettings();
-            UpdateSettingsFromFile();
+            FileManager = new FileManager(projectName);
+            SetFields(userName);
+
+            GetSettingsFromFile();
         }
 
-        private void UpdateSettingsFromFile()
-        {
-            Settings = FileManager.GetSettingsFromFile();
-        }
-
-        private void SetFields(string projectName, string userName)
+        private void SetFields(string userName)
         {
             userName = string.IsNullOrEmpty(userName) ? "DefaultUser" : userName;
             User = new User { UserName = userName };
         }
+
+        private void GetSettingsFromFile()
+        {
+            try
+            {
+                Settings = FileManager.GetSettingsFromFile();
+            }
+            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
+            {
+                AddDefaultSettings();
+
+                Settings = FileManager.GetSettingsFromFile();
+            }
+        }
+
+        private void AddDefaultSettings()
+        {
+            FileManager.CreateDirectory();
+
+            var settings = SettingsBuilder(User, new UserSettings());
+            FileManager.WriteToSettingsFile(settings);
+
+        }
+
+        public void UpdateSetting(Settings settings)
+        {
+            var toUpdate = Settings.Where(x => x.User == settings.User).FirstOrDefault();
+            toUpdate = settings;
+
+            FileManager.WriteToSettingsFile(Settings);
+
+            GetSettingsFromFile();
+        }
+
+
 
         public void AddUser(User user)
         {
@@ -38,9 +68,12 @@ namespace UserSettingsManager
             {
                 var settings = SettingsBuilder(user, new UserSettings());
 
-                FileManager.UpdateSettings(settings);
+                var currentSettings = FileManager.GetSettingsFromFile();
+                var newSettings = currentSettings.Union(settings);
 
-                UpdateSettingsFromFile();
+                FileManager.WriteToSettingsFile(settings);
+
+                GetSettingsFromFile();
             }
         }
 
@@ -57,9 +90,9 @@ namespace UserSettingsManager
             var user = Settings.Where(x => x.User.UserName == userName).FirstOrDefault();
             Settings.Remove(user);
 
-            FileManager.RemoveSettings(Settings);
+            FileManager.WriteToSettingsFile(Settings);
 
-            UpdateSettingsFromFile();
+            GetSettingsFromFile();
         }
 
         private bool UserExists(string userName)
@@ -67,14 +100,10 @@ namespace UserSettingsManager
             return Settings.Any(x => x.User.UserName == userName);
         }
 
-        
-        private ICollection<Settings> SettingsBuilder(User user, UserSettings userSettings)
+        private ICollection<Settings> SettingsBuilder(User user, UserSettings userSettings) => new List<Settings>
         {
-            return new List<Settings>
-            {
-                new Settings() { User =user, UserSettings = userSettings }
-            };
-        }
+            new Settings() { User =user, UserSettings = userSettings }
+        };
 
         public void RemoveUsers(List<string> list)
         {
@@ -82,19 +111,6 @@ namespace UserSettingsManager
             {
                 RemoveUser(user);
             }
-        }
-
-        private void AddSettings()
-        {
-            var settings = SettingsBuilder(User, new UserSettings());
-            FileManager.CreateSettingsFile(settings);
-        }
-
-        public void SetSettings(ICollection<Settings> input)
-        {
-            Settings = input;
-
-            FileManager.CreateSettingsFile(Settings);
         }
     }
 }

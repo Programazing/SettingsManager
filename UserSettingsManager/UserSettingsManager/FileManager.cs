@@ -7,48 +7,39 @@ using System.Text.Json;
 
 namespace UserSettingsManager
 {
-    static class FileManager
+    internal class FileManager
     {
-        private static string AppFolderPath;
-        private static string JsonFilePath;
+        private string JsonFilePath;
 
-        internal static void SetPaths(string projectName)
+        public FileManager(string projectName)
+        {
+            SetPaths(projectName);
+        }
+
+        private void SetPaths(string projectName)
         {
             projectName = string.IsNullOrEmpty(projectName) ? "DefaultProjectName" : projectName;
 
             var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            AppFolderPath = $"{appDataPath}/{projectName}";
-            JsonFilePath = $"{AppFolderPath}/settings.json";
+            JsonFilePath = $"{appDataPath}/{projectName}/settings.json";
         }
-
-        internal static void CreateDirectory()
+        internal void CreateDirectory()
         {
-            if (!Directory.Exists(AppFolderPath))
+            if (!DirectoryExists())
             {
-                Directory.CreateDirectory(AppFolderPath);
+                Directory.CreateDirectory(SettingsDirectory());
             }
         }
-
-        internal static void CreateSettingsFile(IEnumerable<Settings> data)
+        internal bool SettingsFileExists() => File.Exists(JsonFilePath);
+        internal bool DirectoryExists() => Directory.Exists(SettingsDirectory());
+        internal string SettingsDirectory() => Directory.GetParent(JsonFilePath).ToString();
+        internal void WriteToSettingsFile(IEnumerable<Settings> data)
         {
             string jsonString = Json.Serialize(data);
 
             File.WriteAllText(JsonFilePath, jsonString);
         }
-
-        internal static void UpdateSettings(ICollection<Settings> input)
-        {
-            var currentSettings = GetSettingsFromFile();
-            var newSettings = currentSettings.Union(input);
-            CreateSettingsFile(newSettings);
-        }
-
-        internal static void RemoveSettings(ICollection<Settings> input)
-        {
-            CreateSettingsFile(input);
-        }
-
-        internal static ICollection<Settings> GetSettingsFromFile()
+        internal ICollection<Settings> GetSettingsFromFile()
         {
             string jsonString = File.ReadAllText(JsonFilePath);
             return Json.Deserialize(jsonString);
