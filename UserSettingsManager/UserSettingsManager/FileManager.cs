@@ -7,42 +7,47 @@ using System.Text.Json;
 
 namespace UserSettingsManager
 {
-    internal class FileManager
+    internal static class FileManager
     {
-        private string JsonFilePath;
-
-        public FileManager(string projectName)
-        {
-            SetPaths(projectName);
-        }
-
-        private void SetPaths(string projectName)
-        {
-            projectName = string.IsNullOrEmpty(projectName) ? "DefaultProjectName" : projectName;
-
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            JsonFilePath = $"{appDataPath}/{projectName}/settings.json";
-        }
-        internal void CreateDirectory()
-        {
-            if (!DirectoryExists())
-            {
-                Directory.CreateDirectory(SettingsDirectory());
-            }
-        }
-        internal bool SettingsFileExists() => File.Exists(JsonFilePath);
-        internal bool DirectoryExists() => Directory.Exists(SettingsDirectory());
-        internal string SettingsDirectory() => Directory.GetParent(JsonFilePath).ToString();
-        internal void WriteToSettingsFile(IEnumerable<Settings> data)
+        internal static void WriteToSettingsFile(IEnumerable<Settings> data, string filePath)
         {
             string jsonString = Json.Serialize(data);
 
-            File.WriteAllText(JsonFilePath, jsonString);
+            File.WriteAllText(filePath, jsonString);
         }
-        internal ICollection<Settings> GetSettingsFromFile()
+        internal static ICollection<Settings> GetSettingsFromFile(string filePath)
         {
-            string jsonString = File.ReadAllText(JsonFilePath);
+            AddDefaultSettingsIfNeeded(filePath);
+
+            string jsonString = File.ReadAllText(filePath);
             return Json.Deserialize(jsonString);
         }
+
+        private static void AddDefaultSettingsIfNeeded(string filePath)
+        {
+            if(!SettingsFileExists(filePath))
+            {
+                CreateDirectory(filePath);
+                WriteToSettingsFile(DefaultSettings(), filePath);
+            }
+        }
+
+        private static void CreateDirectory(string filePath)
+        {
+            if (!DirectoryExists(filePath))
+            {
+                var folder = Directory.GetParent(filePath).ToString();
+                Directory.CreateDirectory(folder);
+            }
+        }
+
+        private static IEnumerable<Settings> DefaultSettings()
+        {
+            var defaultSettings = new Settings() { User = new User { UserName = "DefaultUserName" }, UserSettings = new UserSettings() };
+            return new List<Settings> { defaultSettings };
+        }
+
+        internal static bool SettingsFileExists(string filePath) => File.Exists(filePath);
+        internal static bool DirectoryExists(string filePath) => Directory.Exists(filePath);
     }
 }

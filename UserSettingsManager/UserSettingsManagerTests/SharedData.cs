@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UserSettingsManager;
 
@@ -7,11 +8,14 @@ namespace UserSettingsManagerTests
 {
     internal static class SharedData
     {
-        internal static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        internal static string GetDefaultFolderPath(string folderName)
+        {
+            var currentPath = Directory.GetCurrentDirectory().ToString();
+            var parentPath = Directory.GetParent(currentPath).ToString();
+            return $"{parentPath}\\{folderName}";
+        }
 
-        internal static string GetPath(string folderName) => $"{AppData}/{folderName}/settings.json";
-
-        internal static string GetDefaultPath() => GetPath("DefaultProjectName");
+        internal static string GetFilePath(string folderName) => $"{folderName}/settings.json";
 
         internal static List<User> Users => new List<User>()
         {

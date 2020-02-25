@@ -12,25 +12,39 @@ namespace UserSettingsManagerTests
     [TestFixture]
     public class FileTests
     {
+        private SettingsManager SettingsManager;
+        readonly string Path;
+
+        public FileTests()
+        {
+            Path = SharedData.GetDefaultFolderPath("DefaultFolderName");
+        }
+
+        [SetUp]
+        public void Init()
+        {
+            SettingsManager = new SettingsManager(Path);
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            File.Delete(SharedData.GetFilePath(Path));
+            Directory.Delete(Directory.GetParent(SharedData.GetFilePath(Path)).ToString());
+        }
 
         [Test]
-        public void SettingsManager_CreatesDefaultSettingsFiles_WhenCalled_WithABlankString()
+        public void SettingsManager_ThrowsException_WhenCalled_WithABlankString()
         {
-            _ = new UserSettingsManager.SettingsManager("", "");
-
-            var sut = File.Exists(SharedData.GetPath("DefaultProjectName"));
-
-            sut.Should().BeTrue();
+            Assert.Throws<ArgumentException>(() => new SettingsManager(""));
         }
 
         [Test]
         public void SettingsManager_Creates_CorrectlyNamedSettingsFiles_WhenCalled_WithString()
         {
-            var folderName = "My Project";
-            _ = new UserSettingsManager.SettingsManager(folderName, "");
-            var path = SharedData.GetPath(folderName);
+            _ = new SettingsManager(Path);
 
-            var sut = File.Exists(path);
+            var sut = File.Exists(SharedData.GetFilePath(Path));
 
             sut.Should().BeTrue();
         }

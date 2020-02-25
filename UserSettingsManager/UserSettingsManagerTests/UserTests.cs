@@ -13,24 +13,30 @@ namespace UserSettingsManagerTests
     public class UserTests
     {
         private SettingsManager SettingsManager;
+        readonly string Path;
+
+        public UserTests()
+        {
+            Path = SharedData.GetDefaultFolderPath("DefaultFolderName");
+        }
 
         [SetUp]
         public void Init()
         {
-            SettingsManager = new SettingsManager("", "");
+            SettingsManager = new SettingsManager(Path);
         }
 
         [TearDown]
         public void Cleanup()
         {
-            File.Delete(SharedData.GetDefaultPath());
-            Directory.Delete(Directory.GetParent(SharedData.GetDefaultPath()).ToString());
+            File.Delete(SharedData.GetFilePath(Path));
+            Directory.Delete(Directory.GetParent(SharedData.GetFilePath(Path)).ToString());
         }
 
         [Test]
-        public void SettingsManager_WillAddA_DefaultUser_IfPassedABlankString()
+        public void SettingsManager_WillAddA_DefaultUser()
         {
-            SettingsManager.Settings.FirstOrDefault().User.UserName.Should().Be("DefaultUser");
+            SettingsManager.Settings.FirstOrDefault().User.UserName.Should().Be("DefaultUserName");
         }
 
         [Test]
@@ -73,7 +79,7 @@ namespace UserSettingsManagerTests
             SettingsManager.AddUsers(SharedData.Users);
             SettingsManager.RemoveUsers(userNames);
 
-            SettingsManager.Settings.Count().Should().Be(0);                         
+            SettingsManager.Settings.Count().Should().Be(1);                         
         }
     }
 }

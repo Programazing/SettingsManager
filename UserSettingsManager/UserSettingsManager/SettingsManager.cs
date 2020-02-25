@@ -9,58 +9,36 @@ namespace UserSettingsManager
 {
     public class SettingsManager
     {
+        private readonly string JsonPath;
         public ICollection<Settings> Settings;
-        private readonly FileManager FileManager;
-        private User User;
 
-        public SettingsManager(string projectName, string userName)
+        public SettingsManager(string projectPath)
         {
-            FileManager = new FileManager(projectName);
-            SetFields(userName);
+            ValidateProjectPathString(projectPath);
 
-            GetSettingsFromFile();
+            JsonPath = $"{projectPath}\\settings.json";
+
+            GetFromFile();
         }
 
-        private void SetFields(string userName)
+        private void ValidateProjectPathString(string projectPath)
         {
-            userName = string.IsNullOrEmpty(userName) ? "DefaultUser" : userName;
-            User = new User { UserName = userName };
+            if (!string.IsNullOrEmpty(projectPath)) { return; }
+            throw new ArgumentException("Project Path Cannot Be Null or Empty.", nameof(projectPath));
         }
 
-        private void GetSettingsFromFile()
-        {
-            try
-            {
-                Settings = FileManager.GetSettingsFromFile();
-            }
-            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
-            {
-                AddDefaultSettings();
+        private void GetFromFile() => Settings = FileManager.GetSettingsFromFile(JsonPath);
 
-                Settings = FileManager.GetSettingsFromFile();
-            }
-        }
-
-        private void AddDefaultSettings()
-        {
-            FileManager.CreateDirectory();
-
-            var settings = SettingsBuilder(User, new UserSettings());
-            FileManager.WriteToSettingsFile(settings);
-
-        }
 
         public void UpdateSetting(Settings settings)
         {
             var toUpdate = Settings.Where(x => x.User == settings.User).FirstOrDefault();
             toUpdate = settings;
 
-            FileManager.WriteToSettingsFile(Settings);
+            FileManager.WriteToSettingsFile(Settings, JsonPath);
 
-            GetSettingsFromFile();
+            GetFromFile();
         }
-
-
 
         public void AddUser(User user)
         {
@@ -68,12 +46,12 @@ namespace UserSettingsManager
             {
                 var settings = SettingsBuilder(user, new UserSettings());
 
-                var currentSettings = FileManager.GetSettingsFromFile();
+                var currentSettings = FileManager.GetSettingsFromFile(JsonPath);
                 var newSettings = currentSettings.Union(settings);
 
-                FileManager.WriteToSettingsFile(settings);
+                FileManager.WriteToSettingsFile(newSettings, JsonPath);
 
-                GetSettingsFromFile();
+                GetFromFile();
             }
         }
 
@@ -90,9 +68,9 @@ namespace UserSettingsManager
             var user = Settings.Where(x => x.User.UserName == userName).FirstOrDefault();
             Settings.Remove(user);
 
-            FileManager.WriteToSettingsFile(Settings);
+            FileManager.WriteToSettingsFile(Settings, JsonPath);
 
-            GetSettingsFromFile();
+            GetFromFile();
         }
 
         private bool UserExists(string userName)
