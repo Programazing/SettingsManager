@@ -42,8 +42,6 @@ namespace UserSettingsManagerTests
         [Test]
         public void SettingsManager_Creates_CorrectlyNamedSettingsFiles_WhenCalled_WithString()
         {
-            _ = new SettingsManager(Path);
-
             var sut = File.Exists(SharedData.GetFilePath(Path));
 
             sut.Should().BeTrue();

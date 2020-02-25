@@ -38,11 +38,9 @@ namespace UserSettingsManagerTests
         {
             var settingsManager = new SettingsManager(Path);
 
-            var user = settingsManager.Settings.FirstOrDefault();
+            settingsManager.Settings.FirstOrDefault().UserSettings.NumberSetting = 87;
 
-            user.UserSettings.NumberSetting = 87;
-
-            settingsManager.UpdateSetting(user);
+            settingsManager.UpdateSettings();
 
             settingsManager.Settings.FirstOrDefault().UserSettings.NumberSetting.Should().Be(87);
         }

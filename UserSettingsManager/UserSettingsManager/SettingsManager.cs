@@ -30,11 +30,8 @@ namespace UserSettingsManager
         private void GetFromFile() => Settings = FileManager.GetSettingsFromFile(JsonPath);
 
 
-        public void UpdateSetting(Settings settings)
+        public void UpdateSettings()
         {
-            var toUpdate = Settings.Where(x => x.User == settings.User).FirstOrDefault();
-            toUpdate = settings;
-
             FileManager.WriteToSettingsFile(Settings, JsonPath);
 
             GetFromFile();
