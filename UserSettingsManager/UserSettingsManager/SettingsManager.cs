@@ -16,7 +16,7 @@ namespace UserSettingsManager
         {
             ValidateProjectPathString(projectPath);
 
-            JsonPath = $"{projectPath}\\settings.json";
+            JsonPath = $"{projectPath}{Path.DirectorySeparatorChar}settings.json";
 
             GetFromFile();
         }

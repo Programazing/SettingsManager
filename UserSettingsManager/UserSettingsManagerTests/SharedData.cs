@@ -12,10 +12,11 @@ namespace UserSettingsManagerTests
         {
             var currentPath = Directory.GetCurrentDirectory().ToString();
             var parentPath = Directory.GetParent(currentPath).ToString();
-            return $"{parentPath}\\{folderName}";
+
+            return Path.Combine(parentPath, folderName);
         }
 
-        internal static string GetFilePath(string folderName) => $"{folderName}/settings.json";
+        internal static string GetFilePath(string folderName) => $"{folderName}{Path.DirectorySeparatorChar}settings.json";
 
         internal static List<User> Users => new List<User>()
         {
